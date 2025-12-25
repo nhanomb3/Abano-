@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Plano de Aula MZ</title>
+</head>
+<body>
+  <h1>Olá, <span id="nome">Professor(a)</span>!</h1>
+  <p>Você está logado.</p>
+  <button onclick="fazerLogout()">Sair</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 🔑 Configure ou use supabase.js
+    const supabase = supabase.createClient(
+      'https://jgjlgdbwhkelyyxxgenq.supabase.co',
+      'sb_publishable_QDJ3xuSHtYltCtxwYdn52Q_3MWPaaZi'
+    );
+
+    // Verifica login ao carregar
+    (async () => {
+      const {  { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = '/login.html';
+        return;
+      }
+      // Mostra info do usuário
+      document.getElementById('nome').textContent = session.user.user_metadata?.phone || 'Professor(a)';
+    })();
+
+    function fazerLogout() {
+      supabase.auth.signOut().then(() => {
+        window.location.href = '/login.html';
+      });
+    }
+  </script>
+</body>
+</html>

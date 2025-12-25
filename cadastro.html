@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastro — Plano de Aula MZ</title>
+  <style>
+    /* Mesmo CSS do login.html */
+    body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
+    .card { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { color: #2b5dab; text-align: center; margin-bottom: 20px; }
+    .input-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+    button { background: #2ecc71; color: white; border: none; padding: 14px; border-radius: 6px; width: 100%; font-size: 1.1rem; cursor: pointer; }
+    button:hover { background: #27ae60; }
+    .error { color: #e74c3c; text-align: center; margin: 10px 0; min-height: 20px; }
+    .links { text-align: center; margin-top: 20px; }
+    .links a { color: #2b5dab; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📝 Crie sua conta</h2>
+    <div class="error" id="erro"></div>
+    
+    <div class="input-group">
+      <label for="phone">Número de telemóvel</label>
+      <input type="tel" id="phone" placeholder="84 123 4567" maxlength="12">
+    </div>
+    
+    <div class="input-group">
+      <label for="password">Senha (6+ caracteres)</label>
+      <input type="password" id="password" placeholder="••••••••">
+    </div>
+    
+    <div class="input-group">
+      <label for="password2">Confirme a senha</label>
+      <input type="password" id="password2" placeholder="••••••••">
+    </div>
+    
+    <button onclick="fazerCadastro()">Criar conta</button>
+    
+    <div class="links">
+      <p>Já tem conta? <a href="login.html">Faça login</a></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = supabase.createClient(
+      'https://jgjlgdbwhkelyyxxgenq.supabase.co', // ← ALTERE
+      'sb_publishable_QDJ3xuSHtYltCtxwYdn52Q_3MWPaaZi'                    // ← ALTERE
+    );
+
+    function normalizarTelefone(phone) {
+      return phone.replace(/\D/g, '').replace(/^258/, '').padStart(9, '8');
+    }
+
+    async function fazerCadastro() {
+      const rawPhone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const password2 = document.getElementById('password2').value;
+      const erro = document.getElementById('erro');
+
+      const phone = normalizarTelefone(rawPhone);
+      if (!/^[82]\d{8}$/.test(phone)) {
+        erro.textContent = '📱 Número inválido. Use 9 dígitos.';
+        return;
+      }
+      if (password.length < 6) {
+        erro.textContent = '🔒 Senha deve ter pelo menos 6 caracteres.';
+        return;
+      }
+      if (password !== password2) {
+        erro.textContent = '❌ As senhas não coincidem.';
+        return;
+      }
+
+      erro.textContent = 'Criando conta...';
+
+      // ✅ Email com domínio genérico (gmail.com funciona)
+      const email = `${phone}@gmail.com`;
+
+      // ✅ signUp com opções de metadados
+      const {  error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { phone } // armazena o número nos metadados
+        }
+      });
+
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          erro.textContent = '⚠️ Esse número já está cadastrado.';
+        } else {
+          erro.textContent = '❌ ' + error.message;
+        }
+      } else {
+        // ✅ Salva no perfil (opcional, mas recomendado)
+        const {  { session } } = await supabase.auth.getSession();
+        if (session) {
+          await supabase.from('profiles').insert({
+            id: ,
+            phone
+          });
+        }
+        erro.textContent = '✅ Conta criada! Redirecionando...';
+        setTimeout(() => window.location.href = 'login.html', 1500);
+      }
+    }
+  </script>
+</body>
+</html>

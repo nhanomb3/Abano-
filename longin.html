@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login — Plano de Aula MZ</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
+    .card { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { color: #2b5dab; text-align: center; margin-bottom: 20px; }
+    .input-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+    button { background: #2b5dab; color: white; border: none; padding: 14px; border-radius: 6px; width: 100%; font-size: 1.1rem; cursor: pointer; }
+    button:hover { background: #1d4a8a; }
+    .error { color: #e74c3c; text-align: center; margin: 10px 0; min-height: 20px; }
+    .links { text-align: center; margin-top: 20px; }
+    .links a { color: #2b5dab; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🔐 Acesse sua conta</h2>
+    <div class="error" id="erro"></div>
+    
+    <div class="input-group">
+      <label for="phone">Número de telemóvel</label>
+      <input type="tel" id="phone" placeholder="84 123 4567" maxlength="12">
+    </div>
+    
+    <div class="input-group">
+      <label for="password">Senha</label>
+      <input type="password" id="password" placeholder="••••••••">
+    </div>
+    
+    <button onclick="fazerLogin()">Entrar</button>
+    
+    <div class="links">
+      <p>Não tem conta? <a href="cadastro.html">Crie aqui</a></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 🔑 CONFIGURE AQUI (ou use supabase.js)
+    const supabase = supabase.createClient(
+      'https://jgjlgdbwhkelyyxxgenq.supabase.co', // ← ALTERE
+      'sb_publishable_QDJ3xuSHtYltCtxwYdn52Q_3MWPaaZi'                    // ← ALTERE
+    );
+
+    function normalizarTelefone(phone) {
+      return phone.replace(/\D/g, '').replace(/^258/, '').padStart(9, '8');
+    }
+
+    async function fazerLogin() {
+      const rawPhone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const erro = document.getElementById('erro');
+
+      // Validação simples
+      const phone = normalizarTelefone(rawPhone);
+      if (!/^[82]\d{8}$/.test(phone)) {
+        erro.textContent = '📱 Use 9 dígitos (ex: 841234567)';
+        return;
+      }
+      if (password.length < 6) {
+        erro.textContent = '🔒 Senha deve ter pelo menos 6 caracteres';
+        return;
+      }
+
+      erro.textContent = 'Entrando...';
+
+      // ✅ USO CORRETO: email fictício com domínio genérico
+      const email = `${phone}@gmail.com`;
+
+      // ✅ USO CORRETO: signInWithPassword (não signIn)
+      const {  error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        // Mensagem amigável
+        if (error.message.includes('Invalid login credentials')) {
+          erro.textContent = '❌ Número ou senha incorretos.';
+        } else {
+          erro.textContent = '⚠️ ' + error.message;
+        }
+      } else {
+        erro.textContent = '';
+        // Redireciona após login
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+</body>
+</html>
