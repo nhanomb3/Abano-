@@ -3,36 +3,59 @@
 <head>
   <meta charset="utf-8">
   <title>Plano de Aula MZ</title>
+  <!-- ✅ SEM ESPAÇOS NO FINAL -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <h1>Olá, <span id="nome">Professor(a)</span>!</h1>
-  <p>Você está logado.</p>
-  <button onclick="fazerLogout()">Sair</button>
+  <h1>Olá, <span id="nome">Carregando...</span>!</h1>
+  <p id="status">Verificando sessão...</p>
+  <button onclick="fazerLogout()" id="btnSair" style="display:none;">Sair</button>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // 🔑 Configure ou use supabase.js
-    const supabase = supabase.createClient(
-      'https://jgjlgdbwhkelyyxxgenq.supabase.co',
-      'sb_publishable_QDJ3xuSHtYltCtxwYdn52Q_3MWPaaZi'
-    );
+    // ✅ CHAVES CORRIGIDAS (sem espaços!)
+    const SUPABASE_URL = 'https://jgjlgdbwhkelyyxxgenq.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_QDJ3xuSHtYltCtxwYdn52Q_3MWPaaZi';
 
-    // Verifica login ao carregar
-    (async () => {
-      const {  { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = '/login.html';
-        return;
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function verificarLogin() {
+      const status = document.getElementById('status');
+      const nome = document.getElementById('nome');
+      const btn = document.getElementById('btnSair');
+
+      try {
+        const {  { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          status.textContent = '⚠️ Sessão não encontrada. Redirecionando para login...';
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+          return;
+        }
+
+        // ✅ Exibe dados do usuário
+        const phone = session.user.user_metadata?.phone;
+        nome.textContent = phone ? `+258 ${phone}` : 'Professor(a)';
+        status.textContent = '✅ Você está logado.';
+        btn.style.display = 'inline-block';
+
+      } catch (err) {
+        status.textContent = '❌ Erro ao verificar sessão: ' + err.message;
+        console.error(err);
       }
-      // Mostra info do usuário
-      document.getElementById('nome').textContent = session.user.user_metadata?.phone || 'Professor(a)';
-    })();
+    }
 
     function fazerLogout() {
       supabase.auth.signOut().then(() => {
-        window.location.href = '/login.html';
+        window.location.href = 'login.html';
+      }).catch(err => {
+        alert('Erro ao sair: ' + err.message);
       });
     }
+
+    // Inicia verificação
+    verificarLogin();
   </script>
 </body>
 </html>
