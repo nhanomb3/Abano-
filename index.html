@@ -1,97 +1,1425 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login — Plano de Aula MZ</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
-    .card { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    h2 { color: #2b5dab; text-align: center; margin-bottom: 20px; }
-    .input-group { margin-bottom: 16px; }
-    label { display: block; margin-bottom: 6px; font-weight: 500; color: #333; }
-    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
-    button { background: #2b5dab; color: white; border: none; padding: 14px; border-radius: 6px; width: 100%; font-size: 1.1rem; cursor: pointer; }
-    button:hover { background: #1d4a8a; }
-    .error { color: #e74c3c; text-align: center; margin: 10px 0; min-height: 20px; }
-    .links { text-align: center; margin-top: 20px; }
-    .links a { color: #2b5dab; text-decoration: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roleta Ataiva - Sistema de Sorteios</title>
+    <style>
+        /* ==============================================
+           VARIÁVEIS E RESET
+           ============================================== */
+        :root {
+            --primary: #1a2980;
+            --secondary: #26d0ce;
+            --accent: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #3498db;
+            --gold: #f1c40f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* ==============================================
+           CARD DE LOGIN/REGISTRO
+           ============================================== */
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .login-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-logout {
+            background: var(--accent);
+            color: white;
+            padding: 8px 20px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+        
+        .btn-logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .link:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        
+        /* ==============================================
+           CONTAINER DA ROLETA
+           ============================================== */
+        .roulette-container {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .roulette-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .roulette-header h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .roulette-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* ==============================================
+           BARRA DO USUÁRIO
+           ============================================== */
+        .user-bar {
+            background: var(--light);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--dark);
+        }
+        
+        .user-phone {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* ==============================================
+           SEÇÃO DA ROLETA
+           ============================================== */
+        .roulette-section {
+            padding: 40px;
+        }
+        
+        /* ==============================================
+           CONTADOR DE GIROS
+           ============================================== */
+        .giros-info {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid var(--info);
+        }
+        
+        .giros-counter {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* ==============================================
+           CONTAINER DA RODA
+           ============================================== */
+        .wheel-wrapper {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            margin: 0 auto 40px;
+        }
+        
+        .roulette-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 0 12px var(--dark),
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 0 30px rgba(0,0,0,0.2);
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 6px solid var(--gold);
+            background: white;
+        }
+        
+        .roulette-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+        }
+        
+        .segment-content {
+            position: absolute;
+            width: 140px;
+            left: 40%;
+            top: 15%;
+            transform: rotate(60deg);
+            text-align: center;
+        }
+        
+        .segment-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 
+                2px 2px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+            padding: 3px;
+        }
+        
+        /* Centro da roleta */
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--dark);
+            border-radius: 50%;
+            border: 6px solid var(--gold);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 0 20px rgba(0,0,0,0.8),
+                inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .center-text {
+            color: var(--gold);
+            font-size: 24px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        /* Ponteiro */
+        .wheel-pointer {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 40px;
+            color: var(--accent);
+            text-shadow: 
+                0 5px 15px rgba(0,0,0,0.3),
+                0 0 10px rgba(255,107,107,0.5);
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+        
+        /* ==============================================
+           BOTÃO DE GIRAR
+           ============================================== */
+        .spin-button {
+            display: block;
+            width: 300px;
+            margin: 30px auto 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--success), #27ae60);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+            border: 3px solid var(--gold);
+        }
+        
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.4);
+            background: linear-gradient(135deg, #27ae60, #219653);
+        }
+        
+        .spin-button:active:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .spin-button:disabled {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            opacity: 0.7;
+        }
+        
+        /* ==============================================
+           MODAL DE CARREGAMENTO
+           ============================================== */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* ==============================================
+           ANIMAÇÕES
+           ============================================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes win {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .win-animation {
+            animation: win 0.5s ease 3;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        /* ==============================================
+           RESPONSIVIDADE
+           ============================================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .wheel-wrapper {
+                width: 350px;
+                height: 350px;
+            }
+            
+            .segment-name {
+                font-size: 12px;
+            }
+            
+            .segment-content {
+                width: 120px;
+                left: 45%;
+            }
+            
+            .spin-button {
+                width: 250px;
+                font-size: 18px;
+                padding: 18px;
+            }
+            
+            .giros-info {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wheel-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .segment-name {
+                font-size: 11px;
+            }
+            
+            .segment-content {
+                width: 100px;
+                left: 50%;
+            }
+            
+            .roulette-section {
+                padding: 20px;
+            }
+            
+            .user-bar {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .spin-button {
+                width: 220px;
+                font-size: 16px;
+                padding: 16px;
+            }
+            
+            .login-body {
+                padding: 20px;
+            }
+            
+            .login-header {
+                padding: 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .wheel-wrapper {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .segment-name {
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h2>🔐 Acesse sua conta</h2>
-    <div class="error" id="erro"></div>
-    
-    <div class="input-group">
-      <label for="phone">Número de telemóvel</label>
-      <input type="tel" id="phone" placeholder="84 123 4567" maxlength="12">
+    <!-- Overlay de Carregamento -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
     </div>
     
-    <div class="input-group">
-      <label for="password">Senha</label>
-      <input type="password" id="password" placeholder="••••••••">
+    <!-- Tela de Login/Registro -->
+    <div class="login-card" id="loginScreen">
+        <div class="login-header">
+            <h1>🎰 ROLETA ATAIVA</h1>
+            <p>Sistema de Sorteios - Boa Sorte!</p>
+        </div>
+        
+        <div class="login-body">
+            <!-- Mensagens do Sistema -->
+            <div id="message" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; text-align: center;"></div>
+            
+            <!-- Formulário de Login -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>📱 Número de Celular</label>
+                    <input type="tel" id="loginPhone" class="form-control" placeholder="Ex: 87 639-3961" maxlength="15">
+                </div>
+                
+                <div class="form-group">
+                    <label>🔒 Senha</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Digite sua senha">
+                </div>
+                
+                <button class="btn btn-primary" onclick="login()">
+                    🚀 ENTRAR NO SISTEMA
+                </button>
+            </div>
+            
+            <!-- Formulário de Registro -->
+            <div id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label>👤 Nome Completo</label>
+                    <input type="text" id="regName" class="form-control" placeholder="Digite seu nome completo">
+                </div>
+                
+                <div class="form-group">
+                    <label>📱 Número de Celular</label>
+                    <input type="tel" id="regPhone" class="form-control" placeholder="Ex: 87 639-3961" maxlength="15">
+                </div>
+                
+                <div class="form-group">
+                    <label>🔒 Senha</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="Mínimo 6 caracteres">
+                </div>
+                
+                <div class="form-group">
+                    <label>🔒 Confirmar Senha</label>
+                    <input type="password" id="regConfirmPassword" class="form-control" placeholder="Digite a senha novamente">
+                </div>
+                
+                <button class="btn btn-primary" onclick="register()">
+                    📋 CRIAR MINHA CONTA
+                </button>
+            </div>
+            
+            <!-- Link para alternar entre Login e Registro -->
+            <div class="text-center mt-4">
+                <span id="toggleText">Não tem uma conta?</span>
+                <span class="link ml-2" id="toggleLink" onclick="toggleForms()">Cadastre-se</span>
+            </div>
+            
+            <!-- Informação sobre giros -->
+            <div class="text-center mt-4" style="font-size: 12px; color: #666;">
+                <p>⚠️ Cada usuário pode girar 3 vezes por dia</p>
+                <p>⚠️ Respeite os limites de cada plano</p>
+            </div>
+        </div>
     </div>
     
-    <button onclick="fazerLogin()">Entrar</button>
-    
-    <div class="links">
-      <p>Não tem conta? <a href="cadastro.html">Crie aqui</a></p>
+    <!-- Tela da Roleta -->
+    <div class="roulette-container" id="rouletteScreen">
+        <div class="roulette-header">
+            <h1>🎡 ROLETA ATAIVA</h1>
+            <p>BOA SORTE!</p>
+        </div>
+        
+        <!-- Barra do Usuário -->
+        <div class="user-bar">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div>
+                    <div class="user-name" id="userName">Usuário</div>
+                    <div class="user-phone" id="userPhone">(00) 00000-0000</div>
+                </div>
+            </div>
+            <button class="btn btn-logout" onclick="logout()">
+                🚪 SAIR
+            </button>
+        </div>
+        
+        <!-- Seção Principal da Roleta -->
+        <div class="roulette-section">
+            <!-- Contador de Giros -->
+            <div class="giros-info">
+                <div>🎯 GIROS HOJE:</div>
+                <div class="giros-counter" id="girosCounter">0/3</div>
+                <div style="font-size: 14px; margin-top: 5px; color: #666;" id="girosRestantes">
+                    Restam <span id="remainingSpins">3</span> giros hoje
+                </div>
+            </div>
+            
+            <!-- Container da Roda -->
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer">▼</div>
+                <div class="roulette-wheel" id="rouletteWheel">
+                    <!-- Segmentos serão gerados por JavaScript -->
+                </div>
+                <div class="wheel-center">
+                    <div class="center-text">B</div>
+                </div>
+            </div>
+            
+            <!-- Botão de Girar -->
+            <button class="spin-button" id="spinButton" onclick="spinRoulette()">
+                🎡 GIRAR ROLETA
+            </button>
+            
+            <!-- Informações dos Planos -->
+            <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    📋 <strong>LIMITES DIÁRIOS:</strong>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <div style="font-size: 12px;">📅 Plano Mensal: 2x</div>
+                    <div style="font-size: 12px;">📋 Bloco de Plan.: 3x</div>
+                    <div style="font-size: 12px;">📊 Plano Diário: 40x</div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // 🔑 CONFIGURE AQUI (ou use supabase.js)
-    const supabase = supabase.createClient(
-      'https://jgjlgdbwhkelyyxxgenq.supabase.co', // ← ALTERE
-      'sb_publishable_QDJ3xuSHtYltCtxwYdn52Q_3MWPaaZi'                    // ← ALTERE
-    );
-
-    function normalizarTelefone(phone) {
-      return phone.replace(/\D/g, '').replace(/^258/, '').padStart(9, '8');
-    }
-
-    async function fazerLogin() {
-      const rawPhone = document.getElementById('phone').value;
-      const password = document.getElementById('password').value;
-      const erro = document.getElementById('erro');
-
-      // Validação simples
-      const phone = normalizarTelefone(rawPhone);
-      if (!/^[82]\d{8}$/.test(phone)) {
-        erro.textContent = '📱 Use 9 dígitos (ex: 841234567)';
-        return;
-      }
-      if (password.length < 6) {
-        erro.textContent = '🔒 Senha deve ter pelo menos 6 caracteres';
-        return;
-      }
-
-      erro.textContent = 'Entrando...';
-
-      // ✅ USO CORRETO: email fictício com domínio genérico
-      const email = `${phone}@gmail.com`;
-
-      // ✅ USO CORRETO: signInWithPassword (não signIn)
-      const {  error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        // Mensagem amigável
-        if (error.message.includes('Invalid login credentials')) {
-          erro.textContent = '❌ Número ou senha incorretos.';
-        } else {
-          erro.textContent = '⚠️ ' + error.message;
+    <script>
+        // ==============================================
+        // CONFIGURAÇÕES DO SISTEMA
+        // ==============================================
+        
+        // Configuração dos segmentos da roleta
+        const SECTIONS = [
+            { id: 'MENSAL', name: 'MENSAL', color: '#2196F3', angle: 0 },
+            { id: 'PLANIFICACAO', name: 'BLOCO PLAN.', color: '#00BCD4', angle: 60 },
+            { id: 'SEMANAL', name: 'SEMANAL', color: '#9C27B0', angle: 120 },
+            { id: 'DIARIO', name: 'DIÁRIO', color: '#4CAF50', angle: 180 },
+            { id: 'BOA_SORTE', name: 'BOA SORTE', color: '#FFC107', angle: 240 },
+            { id: 'QUINZENAL', name: 'QUINZENAL', color: '#FF5722', angle: 300 }
+        ];
+        
+        // URL do Google Apps Script (ATUALIZE ESTA URL COM A SUA!)
+        // 🔴🔴🔴 IMPORTANTE: Cole aqui a URL da sua Web App 🔴🔴🔴
+        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRfXI1eQX9N_pcvxI_GsIuegdLyfDuOuJZV7nFLfj3e26Mp8jVCm4q3U08fObQt9gJ/exec';
+        
+        // ==============================================
+        // ESTADO DA APLICAÇÃO
+        // ==============================================
+        
+        let currentUser = null;
+        let spinning = false;
+        let girosHoje = 0;
+        let girosRestantes = 3;
+        let sessaoID = null;
+        
+        // ==============================================
+        // FUNÇÕES DE INICIALIZAÇÃO
+        // ==============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sistema Roleta Ataiva inicializando...');
+            
+            // Inicializar roleta
+            initRoulette();
+            
+            // Configurar formatação de telefone
+            setupPhoneFormatting();
+            
+            // Verificar se há usuário salvo
+            checkLocalStorage();
+            
+            // Mostrar mensagem de configuração
+            showMessage('⚠️ Configure a URL do servidor no código!', 'warning');
+            
+            console.log('Sistema inicializado com sucesso!');
+        });
+        
+        function initRoulette() {
+            console.log('Inicializando roleta...');
+            const wheel = document.getElementById('rouletteWheel');
+            wheel.innerHTML = '';
+            
+            SECTIONS.forEach(section => {
+                const segment = document.createElement('div');
+                segment.className = 'roulette-segment';
+                segment.style.backgroundColor = section.color;
+                segment.style.transform = `rotate(${section.angle}deg) skewY(30deg)`;
+                
+                const content = document.createElement('div');
+                content.className = 'segment-content';
+                
+                const name = document.createElement('div');
+                name.className = 'segment-name';
+                name.textContent = section.name;
+                
+                // Ajustar cor do texto para melhor contraste
+                if (section.id === 'BOA_SORTE' || section.id === 'PLANIFICACAO') {
+                    name.style.color = '#000000';
+                    name.style.textShadow = '1px 1px 2px rgba(255,255,255,0.9)';
+                }
+                
+                content.appendChild(name);
+                segment.appendChild(content);
+                wheel.appendChild(segment);
+            });
+            
+            console.log('Roleta inicializada com sucesso!');
         }
-      } else {
-        erro.textContent = '';
-        // Redireciona após login
-        window.location.href = 'index.html';
-      }
-    }
-  </script>
+        
+        function setupPhoneFormatting() {
+            console.log('Configurando formatação de telefone...');
+            
+            const phoneInputs = document.querySelectorAll('input[type="tel"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 9) value = value.substring(0, 9);
+                    
+                    if (value.length >= 7) {
+                        value = value.replace(/^(\d{2})(\d{3})(\d{0,4})/, '($1) $2-$3');
+                    } else if (value.length >= 3) {
+                        value = value.replace(/^(\d{2})(\d{0,7})/, '($1) $2');
+                    }
+                    
+                    e.target.value = value;
+                });
+            });
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE INTERFACE
+        // ==============================================
+        
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const toggleText = document.getElementById('toggleText');
+            const toggleLink = document.getElementById('toggleLink');
+            const messageDiv = document.getElementById('message');
+            
+            // Esconder mensagem
+            messageDiv.style.display = 'none';
+            
+            if (loginForm.style.display !== 'none') {
+                // Mostrar formulário de registro
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleText.textContent = 'Já tem uma conta?';
+                toggleLink.textContent = 'Faça login';
+            } else {
+                // Mostrar formulário de login
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleText.textContent = 'Não tem uma conta?';
+                toggleLink.textContent = 'Cadastre-se';
+            }
+        }
+        
+        function showMessage(text, type = 'info') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+            
+            // Configurar cores baseadas no tipo
+            const colors = {
+                success: { bg: '#d4edda', color: '#155724', border: '#c3e6cb' },
+                error: { bg: '#f8d7da', color: '#721c24', border: '#f5c6cb' },
+                info: { bg: '#d1ecf1', color: '#0c5460', border: '#bee5eb' },
+                warning: { bg: '#fff3cd', color: '#856404', border: '#ffeeba' }
+            };
+            
+            const colorConfig = colors[type] || colors.info;
+            messageDiv.style.backgroundColor = colorConfig.bg;
+            messageDiv.style.color = colorConfig.color;
+            messageDiv.style.border = `1px solid ${colorConfig.border}`;
+            
+            // Auto-esconder após 5 segundos (exceto para erros)
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function showLoading(show = true) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+        
+        function showAlert(message, type = 'info') {
+            const alertTypes = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            const icon = alertTypes[type] || 'ℹ️';
+            alert(`${icon} ${message}`);
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE COMUNICAÇÃO COM O SERVIDOR
+        // ==============================================
+        
+        async function testServerConnection() {
+            try {
+                console.log('Testando conexão com servidor...');
+                if (APP_SCRIPT_URL.includes('SEU_ID_AQUI')) {
+                    throw new Error('URL do servidor não configurada!');
+                }
+                
+                const response = await fetch(APP_SCRIPT_URL + '?test=' + Date.now());
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                console.log('Servidor respondendo:', data.message);
+                return true;
+            } catch (error) {
+                console.error('Erro na conexão com servidor:', error);
+                showMessage('⚠️ Não foi possível conectar ao servidor. Verifique a URL!', 'warning');
+                return false;
+            }
+        }
+        
+        async function callAppsScript(action, data = {}) {
+            console.log(`Chamando Apps Script: ${action}`, data);
+            
+            // Verificar se a URL está configurada
+            if (APP_SCRIPT_URL.includes('SEU_ID_AQUI')) {
+                showMessage('❌ Configure a URL do servidor no código!', 'error');
+                showLoading(false);
+                return {
+                    success: false,
+                    message: 'URL do servidor não configurada'
+                };
+            }
+            
+            showLoading(true);
+            
+            try {
+                const payload = {
+                    action: action,
+                    ...data,
+                    timestamp: Date.now()
+                };
+                
+                // Se houver sessão, adicionar ao payload
+                if (sessaoID) {
+                    payload.sessaoID = sessaoID;
+                }
+                
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+                
+                const response = await fetch(APP_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeout);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Resposta do servidor:', result);
+                
+                showLoading(false);
+                return result;
+                
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                showLoading(false);
+                
+                let errorMessage = 'Erro de conexão: ';
+                if (error.name === 'AbortError') {
+                    errorMessage += 'Timeout - Servidor não respondeu';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'Não foi possível conectar ao servidor. Verifique a URL e a conexão';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                return {
+                    success: false,
+                    message: errorMessage
+                };
+            }
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE AUTENTICAÇÃO
+        // ==============================================
+        
+        async function register() {
+            const nome = document.getElementById('regName').value.trim();
+            const telefone = document.getElementById('regPhone').value.replace(/\D/g, '');
+            const senha = document.getElementById('regPassword').value;
+            const confirmarSenha = document.getElementById('regConfirmPassword').value;
+            
+            // Validações
+            if (!nome || !telefone || !senha || !confirmarSenha) {
+                showMessage('Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            if (senha !== confirmarSenha) {
+                showMessage('As senhas não coincidem!', 'error');
+                return;
+            }
+            
+            if (senha.length < 6) {
+                showMessage('A senha deve ter no mínimo 6 caracteres!', 'error');
+                return;
+            }
+            
+            if (telefone.length !== 9) {
+                showMessage('Número de telefone inválido! Deve ter 9 dígitos.', 'error');
+                return;
+            }
+            
+            // Testar conexão primeiro
+            const connectionOk = await testServerConnection();
+            if (!connectionOk) {
+                showMessage('❌ Não foi possível conectar ao servidor', 'error');
+                return;
+            }
+            
+            // Chamar servidor
+            const response = await callAppsScript('registrar', {
+                nome: nome,
+                telefone: telefone,
+                senha: senha
+            });
+            
+            if (response.success) {
+                showMessage('✅ Conta criada com sucesso! Faça login.', 'success');
+                
+                // Salvar sessão
+                sessaoID = response.data.sessaoID;
+                
+                // Limpar formulário
+                document.getElementById('regName').value = '';
+                document.getElementById('regPhone').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regConfirmPassword').value = '';
+                
+                // Voltar para login
+                toggleForms();
+                
+            } else {
+                showMessage('❌ ' + response.message, 'error');
+            }
+        }
+        
+        async function login() {
+            const telefone = document.getElementById('loginPhone').value.replace(/\D/g, '');
+            const senha = document.getElementById('loginPassword').value;
+            
+            // Validações
+            if (!telefone || !senha) {
+                showMessage('Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            if (telefone.length !== 9) {
+                showMessage('Número de telefone inválido!', 'error');
+                return;
+            }
+            
+            // Testar conexão primeiro
+            const connectionOk = await testServerConnection();
+            if (!connectionOk) {
+                showMessage('❌ Não foi possível conectar ao servidor', 'error');
+                return;
+            }
+            
+            // Chamar servidor
+            const response = await callAppsScript('login', {
+                telefone: telefone,
+                senha: senha
+            });
+            
+            if (response.success) {
+                // Salvar dados do usuário
+                currentUser = {
+                    id: response.data.id,
+                    nome: response.data.nome,
+                    telefone: response.data.telefone,
+                    senha: senha // ⚠️ Atenção: Em produção use tokens JWT
+                };
+                
+                // Salvar sessão
+                sessaoID = response.data.sessaoID;
+                
+                // Salvar no localStorage
+                saveToLocalStorage();
+                
+                // Verificar limites
+                await checkLimits();
+                
+                // Mostrar tela da roleta
+                showRouletteScreen();
+                
+                showMessage('✅ Login realizado com sucesso!', 'success');
+                
+            } else {
+                showMessage('❌ ' + response.message, 'error');
+            }
+        }
+        
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                // Limpar dados
+                currentUser = null;
+                sessaoID = null;
+                girosHoje = 0;
+                girosRestantes = 3;
+                
+                // Limpar localStorage
+                localStorage.removeItem('ataiva_system_data');
+                
+                // Mostrar tela de login
+                document.getElementById('rouletteScreen').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'block';
+                
+                // Limpar formulário
+                document.getElementById('loginPhone').value = '';
+                document.getElementById('loginPassword').value = '';
+                
+                showMessage('Você saiu do sistema.', 'info');
+            }
+        }
+        
+        // ==============================================
+        // FUNÇÕES DA ROLETA
+        // ==============================================
+        
+        async function spinRoulette() {
+            console.log('Iniciando giro da roleta...');
+            
+            // Verificar se pode girar
+            if (spinning) {
+                showMessage('A roleta já está girando!', 'warning');
+                return;
+            }
+            
+            if (girosHoje >= 3) {
+                showMessage('Você já fez 3 giros hoje. Volte amanhã!', 'error');
+                return;
+            }
+            
+            if (!currentUser) {
+                showMessage('Faça login para girar a roleta!', 'error');
+                return;
+            }
+            
+            // Desabilitar botão
+            spinning = true;
+            const spinButton = document.getElementById('spinButton');
+            spinButton.disabled = true;
+            spinButton.textContent = '🎡 GIRANDO...';
+            
+            try {
+                // Enviar requisição ao servidor primeiro
+                const response = await callAppsScript('girar', {
+                    telefone: currentUser.telefone,
+                    senha: currentUser.senha
+                });
+                
+                if (response.success) {
+                    // Animar a roleta com o plano sorteado
+                    const selectedPlan = SECTIONS.find(s => s.id === response.data.plano) || SECTIONS[0];
+                    animateWheel(selectedPlan);
+                    
+                    // Processar resposta após animação
+                    setTimeout(() => {
+                        // Atualizar contadores
+                        girosHoje++;
+                        girosRestantes = 3 - girosHoje;
+                        updateGirosCounter();
+                        
+                        // Salvar no localStorage
+                        saveToLocalStorage();
+                        
+                        // Mostrar resultado
+                        if (response.data.venceu) {
+                            showAlert(`🎉 PARABÉNS!\n\nVocê ganhou: ${response.data.nomePlano}\n\nGiros hoje: ${girosHoje}/3`, 'success');
+                        } else {
+                            showAlert(`🍀 BOA SORTE!\n\nContinue tentando!\n\nGiros hoje: ${girosHoje}/3`, 'info');
+                        }
+                        
+                        // Reabilitar botão se ainda houver giros
+                        spinButton.disabled = girosHoje >= 3;
+                        spinButton.textContent = girosHoje >= 3 ? 'LIMITE ATINGIDO' : '🎡 GIRAR ROLETA';
+                        spinning = false;
+                        
+                    }, 4000); // Tempo da animação
+                    
+                } else {
+                    showAlert('❌ ' + response.message, 'error');
+                    spinButton.disabled = false;
+                    spinButton.textContent = '🎡 GIRAR ROLETA';
+                    spinning = false;
+                }
+                
+            } catch (error) {
+                console.error('Erro ao girar roleta:', error);
+                showMessage('Erro ao processar giro. Tente novamente.', 'error');
+                spinButton.disabled = false;
+                spinButton.textContent = '🎡 GIRAR ROLETA';
+                spinning = false;
+            }
+        }
+        
+        function animateWheel(selectedPlan) {
+            const wheel = document.getElementById('rouletteWheel');
+            const fullSpins = 5;
+            
+            // Calcular ângulo para parar no centro da seção selecionada
+            const sectionCenterAngle = selectedPlan.angle + 30;
+            const finalAngle = (fullSpins * 360) + (360 - sectionCenterAngle);
+            
+            // Resetar transformação
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            
+            // Forçar reflow
+            void wheel.offsetWidth;
+            
+            // Aplicar animação
+            wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+            wheel.style.transform = `rotate(${-finalAngle}deg)`;
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE CONTROLE DE LIMITES
+        // ==============================================
+        
+        async function checkLimits() {
+            console.log('Verificando limites...');
+            
+            if (!currentUser) return;
+            
+            const response = await callAppsScript('verificarLimites', {
+                telefone: currentUser.telefone,
+                senha: currentUser.senha
+            });
+            
+            if (response.success) {
+                girosHoje = response.data.girosHoje || 0;
+                girosRestantes = response.data.girosRestantes || (3 - girosHoje);
+                updateGirosCounter();
+            }
+        }
+        
+        function updateGirosCounter() {
+            const counter = document.getElementById('girosCounter');
+            const remainingSpan = document.getElementById('remainingSpins');
+            const spinButton = document.getElementById('spinButton');
+            
+            if (counter) {
+                counter.textContent = `${girosHoje}/3`;
+            }
+            
+            if (remainingSpan) {
+                remainingSpan.textContent = girosRestantes;
+                
+                // Colorir conforme quantidade
+                if (girosRestantes === 0) {
+                    remainingSpan.style.color = '#e74c3c';
+                    remainingSpan.style.fontWeight = 'bold';
+                } else if (girosRestantes === 1) {
+                    remainingSpan.style.color = '#f39c12';
+                    remainingSpan.style.fontWeight = 'bold';
+                } else {
+                    remainingSpan.style.color = '#2ecc71';
+                }
+            }
+            
+            if (spinButton) {
+                if (girosHoje >= 3) {
+                    spinButton.disabled = true;
+                    spinButton.textContent = 'LIMITE ATINGIDO';
+                    spinButton.style.background = 'linear-gradient(135deg, #95a5a6, #7f8c8d)';
+                } else {
+                    spinButton.disabled = false;
+                    spinButton.textContent = '🎡 GIRAR ROLETA';
+                    spinButton.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+                }
+            }
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE PERSISTÊNCIA LOCAL
+        // ==============================================
+        
+        function saveToLocalStorage() {
+            if (currentUser) {
+                const userData = {
+                    user: currentUser,
+                    sessaoID: sessaoID,
+                    girosHoje: girosHoje,
+                    girosRestantes: girosRestantes,
+                    lastUpdate: new Date().toISOString()
+                };
+                
+                localStorage.setItem('ataiva_system_data', JSON.stringify(userData));
+                console.log('Dados salvos no localStorage');
+            }
+        }
+        
+        function checkLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('ataiva_system_data');
+                
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    // Verificar se os dados são recentes (menos de 24 horas)
+                    const lastUpdate = new Date(data.lastUpdate);
+                    const now = new Date();
+                    const hoursDiff = (now - lastUpdate) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) {
+                        currentUser = data.user;
+                        sessaoID = data.sessaoID;
+                        girosHoje = data.girosHoje || 0;
+                        girosRestantes = data.girosRestantes || (3 - girosHoje);
+                        
+                        // Verificar se a sessão ainda é válida
+                        checkSessionValidity();
+                        
+                        showRouletteScreen();
+                        updateGirosCounter();
+                        
+                        console.log('Dados carregados do localStorage');
+                    } else {
+                        // Dados muito antigos, limpar
+                        localStorage.removeItem('ataiva_system_data');
+                        console.log('Dados antigos removidos do localStorage');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do localStorage:', error);
+                localStorage.removeItem('ataiva_system_data');
+            }
+        }
+        
+        async function checkSessionValidity() {
+            // Verificar se a sessão ainda é válida no servidor
+            if (currentUser && sessaoID) {
+                const response = await callAppsScript('verificarLimites', {
+                    telefone: currentUser.telefone,
+                    senha: currentUser.senha
+                });
+                
+                if (!response.success) {
+                    // Sessão inválida, fazer logout
+                    console.log('Sessão expirada, fazendo logout...');
+                    logout();
+                } else {
+                    // Atualizar contadores
+                    girosHoje = response.data.girosHoje || 0;
+                    girosRestantes = response.data.girosRestantes || (3 - girosHoje);
+                    updateGirosCounter();
+                }
+            }
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE ATUALIZAÇÃO DA INTERFACE
+        // ==============================================
+        
+        function showRouletteScreen() {
+            console.log('Mostrando tela da roleta...');
+            
+            if (currentUser) {
+                updateUserDisplay();
+            }
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('rouletteScreen').style.display = 'block';
+            
+            // Adicionar efeito de fade in
+            const rouletteScreen = document.getElementById('rouletteScreen');
+            rouletteScreen.style.animation = 'fadeIn 0.5s ease-out';
+        }
+        
+        function updateUserDisplay() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.nome;
+                document.getElementById('userPhone').textContent = formatPhone(currentUser.telefone);
+                document.getElementById('userAvatar').textContent = currentUser.nome.charAt(0).toUpperCase();
+            }
+        }
+        
+        function formatPhone(phone) {
+            const nums = phone.toString().replace(/\D/g, '');
+            if (nums.length === 9) {
+                return `(${nums.substring(0,2)}) ${nums.substring(2,5)}-${nums.substring(5)}`;
+            }
+            return phone;
+        }
+        
+        // ==============================================
+        // FUNÇÕES DE DEBUG E LOG
+        // ==============================================
+        
+        function debugInfo() {
+            console.log('=== DEBUG INFO ===');
+            console.log('Usuário:', currentUser);
+            console.log('Sessão:', sessaoID);
+            console.log('Giros hoje:', girosHoje);
+            console.log('Giros restantes:', girosRestantes);
+            console.log('Spinning:', spinning);
+            console.log('URL do servidor:', APP_SCRIPT_URL);
+            console.log('==================');
+        }
+        
+        // Expor funções de debug para o console
+        window.debugInfo = debugInfo;
+        
+        // Testar conexão com servidor
+        window.testConnection = testServerConnection;
+        
+        // Configurar URL do servidor
+        window.setServerUrl = function(url) {
+            if (url && url.trim() !== '') {
+                APP_SCRIPT_URL = url;
+                localStorage.setItem('ataiva_server_url', url);
+                showMessage('✅ URL do servidor configurada!', 'success');
+                console.log('URL do servidor atualizada:', APP_SCRIPT_URL);
+            }
+        }
+        
+        // Carregar URL salva
+        const savedUrl = localStorage.getItem('ataiva_server_url');
+        if (savedUrl) {
+            APP_SCRIPT_URL = savedUrl;
+            console.log('URL carregada do localStorage:', APP_SCRIPT_URL);
+        }
+        
+    </script>
 </body>
 </html>
